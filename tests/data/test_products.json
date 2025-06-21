@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Техника",
+    "description": "Побочный продукт человеческой эволюции для удовлетворения его потребности в лени",
+    "products": [
+      {
+        "name": "Nokia",
+        "description": "Connecting people",
+        "price": 7777.7,
+        "quantity": 13
+      },
+      {
+        "name": "Mac",
+        "description": "Some people's dream",
+        "price": 999999.99,
+        "quantity": 8
+      }
+    ]
+  }
+]
