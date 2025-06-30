@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any
 
 
 class Product:
@@ -8,7 +8,6 @@ class Product:
 
     name: str
     description: str
-    price: float
     quantity: int
 
     def __init__(self, name: str, description: str, price: float, quantity: int):
@@ -24,51 +23,48 @@ class Product:
         self.__price = price
         self.quantity = quantity
 
-    def __repr__(self):
-        return f'{self.name}, {self.price} руб., Остаток: {self.quantity} шт.'
+    def __repr__(self) -> str:  # pragma: no cover
+        return f"{self.name}, {self.description}, {self.price}, {self.quantity}"
 
     @classmethod
-    def new_product(cls, prod_dict: dict):
-        products = Category.products
-        if prod_dict.keys() == {'name', 'description', 'price', 'quantity'}:
+    def new_product(cls, prod_dict: dict, products: "Category") -> Any:
+        if prod_dict.keys() == {"name", "description", "price", "quantity"}:
             name, description, price, quantity = prod_dict.values()
-            for item in products:
+            for item in products.products:
                 if item.name == name:
-                    item.quantity += quantity
-                    item.price = max(price, item.price)
+                    quantity += item.quantity
+                    price = max(price, item.price)
                 else:
                     return cls(name, description, price, quantity)
 
     @property
-    def price(self):
+    def price(self) -> float:
         return self.__price
 
     @price.setter
-    def price(self, new_price):
+    def price(self, new_price: float) -> Any:
         if new_price <= 0:
-            print(f'Указанное значение ниже или равно нулю.')
+            print(f'Неверно задано значение цены - "{new_price}".')
         elif new_price < self.price:
-            answer = input('Указанная цена ниже уже установленной. Введите "Y", чтобы подтвердить изменение цены.')
-            if answer.lower() == 'y':
+            answer = input(
+                f'Цена {new_price} ниже установленной {self.__price}. Введите "Y", чтобы выбрать {new_price} цену.'
+            )
+            if answer.lower() == "y":
                 self.__price = new_price
             else:
-                print(f'Цена осталась без изменений - {self.__price}.')
-
-    # def __str__(self):
-    #     return Product.__str__(self)
-    # def __repr__(self):
-    #     return Product.__repr__(self)
+                print(f"Цена осталась без изменений - {self.__price}.")
 
 
 class Category:
     """
     Класс для представления категории.
     """
+
     product_count: int = 0
     category_count: int = 0
+    product_list: list[Product]
 
-
-    def __init__(self, name: str, description: str, products: Optional[list[Product]] = None):
+    def __init__(self, name: str, description: str, products: list[Product]):
         """
         Метод для инициализации экземпляра класса категории.
         :param name: Наименование категории, str.
@@ -81,7 +77,7 @@ class Category:
         self.total_count = sum(product.quantity for product in products)
         Category.category_count += 1
 
-    def add_product(self, product: Product):
+    def add_product(self, product: Product) -> Any:
         """
         Добавляет продукт в категорию.
         :param product:
@@ -98,3 +94,10 @@ class Category:
         :return:
         """
         return self.__products
+
+    @property
+    def products_list(self) -> list:
+        list_of_products = []
+        for product in self.__products:
+            list_of_products.append(f"{product.name}, {product.price} руб., Остаток: {product.quantity} шт.")
+        return list_of_products
