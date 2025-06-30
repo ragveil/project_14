@@ -43,5 +43,4 @@ if __name__ == "__main__":  # pragma: no cover
     print(category2.description)
     print(category1.total_count)
     print(category2.total_count)
-    print(Category.product_count)
     print(Category.category_count)
