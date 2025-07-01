@@ -86,6 +86,7 @@ def test_iteration(some_category: Category) -> None:
     some_iter = isinstance(some_category, Iterable)
     assert some_iter is True
 
+
 def test_add(prod_1: Product, prod_2: Product) -> None:
     result = prod_1 + prod_2
     assert result == 8072221.42

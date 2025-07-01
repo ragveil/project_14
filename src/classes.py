@@ -162,7 +162,7 @@ class Category:
         return ProdIteration(self)
 
 
-class ProdIteration:    # pragma: no cover
+class ProdIteration:  # pragma: no cover
     """
     Класс для итерации по продуктам внутри одной категории
     """
