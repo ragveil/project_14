@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Iterator
 
 
 class Product:
@@ -24,10 +24,35 @@ class Product:
         self.quantity = quantity
 
     def __repr__(self) -> str:  # pragma: no cover
+        """
+        Метод для информативного отображения объектов класса.
+        :return: Строковое представление продукта, str.
+        """
         return f"{self.name}, {self.description}, {self.price}, {self.quantity}"
+
+    def __str__(self) -> str:
+        """
+        Метод для строкового представления объектов класса.
+        :return: Строковый вывод информации о продукте, str.
+        """
+        return f"{self.name}, {self.price} руб., Остаток: {self.quantity} шт."
+
+    def __add__(self, other: "Product") -> float:
+        """
+        Метод для сложения общей стоимости двух продуктов.
+        :param other: Второй продукт для суммирования.
+        :return: Общая стоимость всех продуктов, float.
+        """
+        return (self.price * self.quantity) + (other.price * other.quantity)
 
     @classmethod
     def new_product(cls, prod_dict: dict, products: "Category") -> Any:
+        """
+        Метод для добавления нового продукта.
+        :param prod_dict: Словарь с данными о продукте, dict.
+        :param products: Продукты, уже добавленные в категорию.
+        :return:
+        """
         if prod_dict.keys() == {"name", "description", "price", "quantity"}:
             name, description, price, quantity = prod_dict.values()
             for item in products.products:
@@ -39,10 +64,19 @@ class Product:
 
     @property
     def price(self) -> float:
+        """
+        Метод для возвращения значения цены.
+        :return: Цена, float.
+        """
         return self.__price
 
     @price.setter
     def price(self, new_price: float) -> Any:
+        """
+        Метод для установки новой цены.
+        :param new_price: Новая цена, float.
+        :return:
+        """
         if new_price <= 0:
             print(f'Неверно задано значение цены - "{new_price}".')
         elif new_price < self.price:
@@ -62,6 +96,7 @@ class Category:
 
     product_count: int = 0
     category_count: int = 0
+    # total_count: int = 0
     product_list: list[Product]
 
     def __init__(self, name: str, description: str, products: list[Product]):
@@ -74,13 +109,26 @@ class Category:
         self.name = name
         self.description = description
         self.__products = products
-        self.total_count = sum(product.quantity for product in products)
         Category.category_count += 1
+
+    def __repr__(self) -> str:
+        """
+        Метод для информативного отображения объектов класса.
+        :return: Строковое представление категории, str.
+        """
+        return f"{self.name}, {self.description}, {self.total_count}, {self.product_count}"
+
+    def __str__(self) -> str:
+        """
+        Метод для строкового представления объектов класса.
+        :return: Строковый вывод информации о категории, str.
+        """
+        return f"{self.name}, количество продуктов: {self.total_count} шт."
 
     def add_product(self, product: Product) -> Any:
         """
         Добавляет продукт в категорию.
-        :param product:
+        :param product: Продукт, добавляемый в категорию.
         :return:
         """
         if isinstance(product, Product):
@@ -96,8 +144,52 @@ class Category:
         return self.__products
 
     @property
-    def products_list(self) -> list:
-        list_of_products = []
+    def total_count(self) -> int:
+        """
+        Метод для подсчета общего количества единиц каждого продукта в категории.
+        :return:
+        """
+        result = 0
         for product in self.__products:
-            list_of_products.append(f"{product.name}, {product.price} руб., Остаток: {product.quantity} шт.")
-        return list_of_products
+            result += product.quantity
+        return result
+
+    def __iter__(self) -> Iterator[Product]:
+        """
+        Метод для получения итератора по объектам класса.
+        :return:
+        """
+        return ProdIteration(self)
+
+
+class ProdIteration:    # pragma: no cover
+    """
+    Класс для итерации по продуктам внутри одной категории
+    """
+
+    def __init__(self, category: "Category") -> None:
+        """
+        Начальная инициализация данных для итерации.
+        :param category: Категория продуктов, по которой будет происходить итерация.
+        """
+        self.products = category.products
+        self.index = 0
+
+    def __iter__(self) -> Iterator[Product]:
+        """
+        Метод для получения итератора по объектам класса.
+        :return:
+        """
+        return self
+
+    def __next__(self) -> Product:
+        """
+        Метод для считывания следующего объекта класса.
+        :return:
+        """
+        if self.index < len(self.products):
+            product = self.products[self.index]
+            self.index += 1
+            return product
+        else:
+            raise StopIteration
