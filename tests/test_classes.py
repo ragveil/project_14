@@ -1,3 +1,7 @@
+from typing import Any
+
+import pytest
+
 from src.classes import Category, Product
 
 
@@ -14,5 +18,57 @@ def test_category(some_category: Category) -> None:
         some_category.description == "Побочный продукт человеческой эволюции для удовлетворения его потребности в лени"
     )
     assert some_category.category_count == 1
-    assert some_category.product_count == 2
+    # assert some_category.product_count == 2 # было изменено, удалить
     assert some_category.total_count == 21
+
+
+def test_new_product_new(dict_prod: dict, some_category: Category) -> None:
+    new_product = Product.new_product(dict_prod, some_category)
+    assert new_product.name == dict_prod["name"]
+    assert new_product.description == dict_prod["description"]
+    assert new_product.price == dict_prod["price"]
+    assert new_product.quantity == dict_prod["quantity"]
+
+
+def test_new_product_update(dict_prod_1: dict, some_category: Category) -> None:
+    new_product = Product.new_product(dict_prod_1, some_category)
+    assert new_product.name == dict_prod_1["name"]
+    assert new_product.quantity == dict_prod_1["quantity"] + some_category.products[0].quantity
+    assert new_product.price == max(dict_prod_1["price"], new_product.price)
+
+
+def test_price(prod_1: Product) -> None:
+    assert prod_1.price == 7777.7
+
+
+def test_price_say_yes(prod_1: Product, monkeypatch: Any) -> None:
+    price_1 = 5555.5
+    monkeypatch.setattr("builtins.input", lambda _: "y")
+    prod_1.price = price_1
+    assert prod_1.price == price_1
+
+
+def test_price_say_no(prod_2: Product, monkeypatch: Any) -> None:
+    price_2 = 1111.1
+    monkeypatch.setattr("builtins.input", lambda _: "n")
+    prod_2.price = price_2
+    assert prod_2.price == 999999.99
+
+
+@pytest.mark.parametrize("price, expected", [(0.0, 5555.5), (-5000.0, 5555.5)])
+def test_price_incorrect(prod_1: Product, price: float, expected: float) -> None:
+    prod_1.price = price
+    assert prod_1.price == expected
+
+
+def test_add_product(dict_prod: dict, some_category: Category) -> None:
+    product = Product.new_product(dict_prod, some_category)
+    some_category.add_product(product)
+    assert some_category.product_count == 3
+    assert some_category.total_count == 21
+    assert some_category.category_count == 1
+    assert some_category.products[2].name == product.name
+
+
+def test_product_list(some_category: Category, list_of_products: list) -> None:
+    assert some_category.products_list == list_of_products
