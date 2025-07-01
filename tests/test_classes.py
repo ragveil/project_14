@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from typing import Any
 
 import pytest
@@ -18,7 +19,6 @@ def test_category(some_category: Category) -> None:
         some_category.description == "Побочный продукт человеческой эволюции для удовлетворения его потребности в лени"
     )
     assert some_category.category_count == 1
-    # assert some_category.product_count == 2 # было изменено, удалить
     assert some_category.total_count == 21
 
 
@@ -65,10 +65,27 @@ def test_add_product(dict_prod: dict, some_category: Category) -> None:
     product = Product.new_product(dict_prod, some_category)
     some_category.add_product(product)
     assert some_category.product_count == 3
-    assert some_category.total_count == 21
     assert some_category.category_count == 1
     assert some_category.products[2].name == product.name
 
 
-def test_product_list(some_category: Category, list_of_products: list) -> None:
-    assert some_category.products_list == list_of_products
+def test_repr(prod_1: Product, some_category: Category) -> None:
+    assert repr(prod_1) == "Nokia, Connecting people, 5555.5, 13"
+    assert (
+        repr(some_category)
+        == "Техника, Побочный продукт человеческой эволюции для удовлетворения его потребности в лени, 42, 3"
+    )
+
+
+def test_str(prod_1: Product, some_category: Category) -> None:
+    assert str(prod_1) == "Nokia, 5555.5 руб., Остаток: 13 шт."
+    assert str(some_category) == "Техника, количество продуктов: 42 шт."
+
+
+def test_iteration(some_category: Category) -> None:
+    some_iter = isinstance(some_category, Iterable)
+    assert some_iter is True
+
+def test_add(prod_1: Product, prod_2: Product) -> None:
+    result = prod_1 + prod_2
+    assert result == 8072221.42
