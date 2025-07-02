@@ -1,9 +1,9 @@
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, Type
 
 import pytest
 
-from src.classes import Category, Product
+from src.classes import Category, LawnGrass, Product, Smartphone
 
 
 def test_product(prod_1: Product) -> None:
@@ -69,6 +69,11 @@ def test_add_product(dict_prod: dict, some_category: Category) -> None:
     assert some_category.products[2].name == product.name
 
 
+def test_add_product_incorrect(some_category: Category, other_class: Any) -> None:
+    with pytest.raises(TypeError):
+        some_category.add_product(other_class)
+
+
 def test_repr(prod_1: Product, some_category: Category) -> None:
     assert repr(prod_1) == "Nokia, Connecting people, 5555.5, 13"
     assert (
@@ -87,6 +92,50 @@ def test_iteration(some_category: Category) -> None:
     assert some_iter is True
 
 
-def test_add(prod_1: Product, prod_2: Product) -> None:
+def test_add_prod(prod_1: Product, prod_2: Product) -> None:
     result = prod_1 + prod_2
     assert result == 8072221.42
+
+
+def test_add_lawn(lawn_grass_1: LawnGrass, lawn_grass_2: LawnGrass) -> None:
+    result = lawn_grass_1 + lawn_grass_2
+    assert result == 20057.0
+
+
+def test_add_smartphone(smartphone_1: Smartphone, smartphone_2: Smartphone) -> None:
+    result = smartphone_1 + smartphone_2
+    assert result == 191976
+
+
+def test_add_incorrect(smartphone_1: Smartphone, lawn_grass_2: LawnGrass) -> None:
+    with pytest.raises(TypeError):
+        smartphone_1 + lawn_grass_2
+
+
+@pytest.mark.parametrize(
+    "class_1, class_2, expected",
+    [
+        (Smartphone, Product, True),
+        (LawnGrass, Product, True),
+        (Smartphone, Category, False),
+        (LawnGrass, Category, False),
+        (Category, Product, False),
+    ],
+)
+def test_sub(
+    class_1: Type[Smartphone | LawnGrass | Product], class_2: Type[Product | Category], expected: bool
+) -> None:
+    assert issubclass(class_1, class_2) == expected
+
+
+def test_smartphone(smartphone_1: Smartphone) -> None:
+    assert smartphone_1.efficiency == 46
+    assert smartphone_1.model == "SMART 9"
+    assert smartphone_1.memory == 64
+    assert smartphone_1.color == "Черный"
+
+
+def test_lawn_grass(lawn_grass_1: LawnGrass) -> None:
+    assert lawn_grass_1.color == "Темно-зеленый"
+    assert lawn_grass_1.germination_period == "6 дней"
+    assert lawn_grass_1.country == "Беларусь"

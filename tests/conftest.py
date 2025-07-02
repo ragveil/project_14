@@ -1,6 +1,6 @@
 import pytest
 
-from src.classes import Category, Product
+from src.classes import Category, LawnGrass, Product, Smartphone
 
 
 @pytest.fixture(scope="session")
@@ -42,3 +42,65 @@ def list_of_products() -> list:
         "Mac, 999999.99 руб., Остаток: 8 шт.",
         "TECNO SPARK 20 Pro+, 16000.0 руб., Остаток: 21 шт.",
     ]
+
+
+@pytest.fixture(scope="session")
+def smartphone_1() -> Smartphone:
+    return Smartphone("Infinix SMART 9", "64GB, Черный цвет, 13+0,08MP камера", 3999, 16, 46, "SMART 9", 64, "Черный")
+
+
+@pytest.fixture(scope="session")
+def smartphone_2() -> Smartphone:
+    return Smartphone(
+        "Samsung Galaxy A16 4G", "256GB, Зеленый цвет, 50+5+2MP камера", 15999, 8, 51, "Galaxy A16 4G", 256, "Зеленый"
+    )
+
+
+@pytest.fixture(scope="session")
+def smartphone_3() -> Smartphone:
+    return Smartphone(
+        "Apple iPhone 16 Pro",
+        "256GB, Бежевый цвет, 48+48+12MP камера",
+        121599,
+        16,
+        63,
+        "iPhone 16 Pro",
+        256,
+        "Бежевый",
+    )
+
+
+@pytest.fixture(scope="session")
+def lawn_grass_1() -> LawnGrass:
+    return LawnGrass(
+        "Быстрый газон",
+        "Высокая приживаемость и быстрая скорость роста",
+        709.5,
+        12,
+        "Беларусь",
+        "6 дней",
+        "Темно-зеленый",
+    )
+
+
+@pytest.fixture(scope="session")
+def lawn_grass_2() -> LawnGrass:
+    return LawnGrass(
+        "Газон Сибиряк",
+        "Морозоустойчивый газон, выдерживает температуры до -50С.",
+        1649,
+        7,
+        "Россия",
+        "12 дней",
+        "Зеленый",
+    )
+
+
+@pytest.fixture(scope="session")
+def other_class():
+    class Other:
+        def __init__(self, name: str, price: float) -> None:
+            self.name = name
+            self.price = price
+
+    return Other("Атака мурлоков", 18.18)
