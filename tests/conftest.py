@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from src.classes import Category, LawnGrass, Product, Smartphone
@@ -97,7 +99,7 @@ def lawn_grass_2() -> LawnGrass:
 
 
 @pytest.fixture(scope="session")
-def other_class():
+def other_class() -> Any:
     class Other:
         def __init__(self, name: str, price: float) -> None:
             self.name = name
