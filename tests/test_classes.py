@@ -3,7 +3,7 @@ from typing import Any, Type
 
 import pytest
 
-from src.classes import Category, LawnGrass, Product, Smartphone
+from src.classes import Category, LawnGrass, Order, Product, Smartphone
 
 
 def test_product(prod_1: Product) -> None:
@@ -19,6 +19,7 @@ def test_category(some_category: Category) -> None:
         some_category.description == "Побочный продукт человеческой эволюции для удовлетворения его потребности в лени"
     )
     assert some_category.category_count == 1
+    assert some_category.product_count == 2
     assert some_category.total_count == 21
 
 
@@ -75,7 +76,7 @@ def test_add_product_incorrect(some_category: Category, other_class: Any) -> Non
 
 
 def test_repr(prod_1: Product, some_category: Category) -> None:
-    assert repr(prod_1) == "Nokia, Connecting people, 5555.5, 13"
+    assert repr(prod_1) == "Product: ('Nokia', 'Connecting people', 5555.5, 13)"
     assert (
         repr(some_category)
         == "Техника, Побочный продукт человеческой эволюции для удовлетворения его потребности в лени, 42, 3"
@@ -139,3 +140,15 @@ def test_lawn_grass(lawn_grass_1: LawnGrass) -> None:
     assert lawn_grass_1.color == "Темно-зеленый"
     assert lawn_grass_1.germination_period == "6 дней"
     assert lawn_grass_1.country == "Беларусь"
+
+
+@pytest.mark.parametrize(
+    "quantity, expected",
+    [
+        (3, "Ваш заказ Nokia, Connecting people, 3 шт. на сумму 16666.5 руб. сформирован."),
+        (33, "На складе нет такого количества товаров."),
+    ],
+)
+def test_order(prod_1: Product, quantity: int, expected: str) -> None:
+    ordered = Order(prod_1, quantity)
+    assert str(ordered) == expected

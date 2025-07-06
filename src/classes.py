@@ -1,7 +1,37 @@
+from abc import ABC, abstractmethod
 from typing import Any, Iterator
 
 
-class Product:
+class BaseProduct(ABC):
+    """
+    Абстрактный класс. В дочерних классах должны быть переопределены методы: __init__
+    """
+
+    @abstractmethod
+    def __init__(self) -> None:
+        pass
+
+
+class PrintingMixin:
+    """
+    Класс для вывода информации о классе и атрибутах при инициализации экземпляра.
+    """
+
+    def __init__(self) -> None:
+        """
+        Способ вывода сообщения.
+        """
+        print(repr(self))
+
+    def __repr__(self) -> str:
+        """
+        Вид выводимого сообщения.
+        :return:
+        """
+        return f"{self.__class__.__name__}: {tuple(self.__dict__.values())}"
+
+
+class Product(PrintingMixin, BaseProduct):
     """
     Класс для представления продукта.
     """
@@ -22,13 +52,7 @@ class Product:
         self.description = description
         self.__price = price
         self.quantity = quantity
-
-    def __repr__(self) -> str:  # pragma: no cover
-        """
-        Метод для информативного отображения объектов класса.
-        :return: Строковое представление продукта, str.
-        """
-        return f"{self.name}, {self.description}, {self.price}, {self.quantity}"
+        super().__init__()
 
     def __str__(self) -> str:
         """
@@ -92,7 +116,11 @@ class Product:
                 print(f"Цена осталась без изменений - {self.__price}.")
 
 
-class Smartphone(Product):
+class Smartphone(Product, PrintingMixin):
+    """
+    Класс смартфонов, наследуется от класса Product.
+    """
+
     def __init__(
         self,
         name: str,
@@ -104,6 +132,17 @@ class Smartphone(Product):
         memory: int,
         color: str,
     ):
+        """
+        Метод для инициализации объекта класса смартфоны.
+        :param name: Имя, str.
+        :param description: Описание, str.
+        :param price: Цена, float.
+        :param quantity: Количество, int.
+        :param efficiency: Производительность, float.
+        :param model: Модель, str.
+        :param memory: Память, int.
+        :param color: Цвет, str.
+        """
         super().__init__(name, description, price, quantity)
         self.efficiency = efficiency
         self.model = model
@@ -111,7 +150,11 @@ class Smartphone(Product):
         self.color = color
 
 
-class LawnGrass(Product):
+class LawnGrass(Product, PrintingMixin):
+    """
+    Класс газонной травы, наследуется от Product.
+    """
+
     def __init__(
         self,
         name: str,
@@ -122,20 +165,52 @@ class LawnGrass(Product):
         germination_period: str,
         color: str,
     ):
+        """
+        Метод для инициализации объекта класса газонной травы.
+        :param name: Имя, str.
+        :param description: Описание, str.
+        :param price: Цена, float.
+        :param quantity: Количество, int.
+        :param country: Страна-производитель, str.
+        :param germination_period: Срок прорастания, str.
+        :param color: Цвет, str.
+        """
         super().__init__(name, description, price, quantity)
         self.country = country
         self.germination_period = germination_period
         self.color = color
 
 
-class Category:
+class BaseCategory(ABC):
+    """
+    Абстрактный класс, объединяющий классы Category и Order.
+    В дочерних классах должны быть переопределены методы __init__, __repr__, __str__ и total_count.
+    """
+
+    @abstractmethod
+    def __init__(self) -> None:
+        pass
+
+    @abstractmethod
+    def __repr__(self) -> str:
+        pass
+
+    @abstractmethod
+    def __str__(self) -> str:
+        pass
+
+    @abstractmethod
+    def total_count(self) -> int:
+        pass
+
+
+class Category(BaseCategory):
     """
     Класс для представления категории.
     """
 
     product_count: int = 0
     category_count: int = 0
-    # total_count: int = 0
     product_list: list[Product]
 
     def __init__(self, name: str, description: str, products: list[Product]):
@@ -145,9 +220,12 @@ class Category:
         :param description: Описание категории, str.
         :param products: Список продуктов, list[Product].
         """
+        super().__init__()
         self.name = name
         self.description = description
         self.__products = products
+        self.product_count = len(self.__products)
+        Category.product_count += self.product_count
         Category.category_count += 1
 
     def __repr__(self) -> str:
@@ -172,7 +250,7 @@ class Category:
         """
         if isinstance(product, Product):
             self.__products.append(product)
-            Category.product_count = len(self.__products)
+            self.product_count += 1
         else:
             raise TypeError
 
@@ -201,6 +279,49 @@ class Category:
         :return:
         """
         return ProdIteration(self)
+
+
+class Order(BaseCategory):
+    """
+    Класс для представления заказа.
+    """
+
+    def __init__(self, product: Product, quantity: int) -> None:
+        """
+        Метод для инициализации экземпляра объекта.
+        :param product: Продукт, Product.
+        :param quantity: Заказанное количество.
+        """
+        super().__init__()
+        self.product = product
+        self.name = product.name
+        self.description = product.description
+        self.quantity = quantity
+        self.price = product.price
+
+    def total_count(self) -> Any:
+        """
+        Метод для расчета общей суммы заказа.
+        :return:
+        """
+        return self.quantity * self.price
+
+    def __repr__(self) -> str:
+        """
+        Метод для информативного представления объекта класса.
+        :return:
+        """
+        return f"{self.name}, {self.description}, {self.quantity} шт."
+
+    def __str__(self) -> str:
+        """
+        Метод для строкового представления объекта класса.
+        :return:
+        """
+        if self.quantity <= self.product.quantity:
+            return f"Ваш заказ {repr(self)} на сумму {self.total_count()} руб. сформирован."
+        else:
+            return "На складе нет такого количества товаров."
 
 
 class ProdIteration:  # pragma: no cover
