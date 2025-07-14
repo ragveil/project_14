@@ -3,7 +3,7 @@ from typing import Any, Type
 
 import pytest
 
-from src.classes import Category, LawnGrass, Order, Product, Smartphone
+from src.classes import Category, LawnGrass, MyException, Order, Product, Smartphone
 
 
 def test_product(prod_1: Product) -> None:
@@ -152,3 +152,21 @@ def test_lawn_grass(lawn_grass_1: LawnGrass) -> None:
 def test_order(prod_1: Product, quantity: int, expected: str) -> None:
     ordered = Order(prod_1, quantity)
     assert str(ordered) == expected
+
+
+def test_exception_product(null_quantity: dict, some_category: Category) -> None:
+    with pytest.raises(MyException):
+        Product.new_product(null_quantity, some_category)
+
+
+def test_exception_order(prod_1: Product) -> None:
+    with pytest.raises(MyException):
+        Order(prod_1, 0)
+
+
+def test_mid_price(some_category: Category) -> None:
+    assert some_category.middle_price() == 341259.23
+
+
+def test_zero_division() -> None:
+    assert Category("Пусто", "Пусто", []).middle_price() == 0
