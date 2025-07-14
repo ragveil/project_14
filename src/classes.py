@@ -2,6 +2,15 @@ from abc import ABC, abstractmethod
 from typing import Any, Iterator
 
 
+class MyException(Exception):
+
+    def __init__(self, *args: object) -> None:
+        self.message = args[0] if args else "Количество товара равно нулю."
+
+    def __str__(self) -> Any:
+        return self.message
+
+
 class BaseProduct(ABC):
     """
     Абстрактный класс. В дочерних классах должны быть переопределены методы: __init__
@@ -52,6 +61,11 @@ class Product(PrintingMixin, BaseProduct):
         self.description = description
         self.__price = price
         self.quantity = quantity
+        if quantity > 0:
+            self.quantity = quantity
+        else:
+            raise MyException
+
         super().__init__()
 
     def __str__(self) -> str:
@@ -181,7 +195,7 @@ class LawnGrass(Product, PrintingMixin):
         self.color = color
 
 
-class BaseCategory(ABC):
+class BaseCategory(ABC, MyException):
     """
     Абстрактный класс, объединяющий классы Category и Order.
     В дочерних классах должны быть переопределены методы __init__, __repr__, __str__ и total_count.
@@ -223,6 +237,9 @@ class Category(BaseCategory):
         super().__init__()
         self.name = name
         self.description = description
+        for product in products:
+            if product.quantity < 1:
+                raise MyException
         self.__products = products
         self.product_count = len(self.__products)
         Category.product_count += self.product_count
@@ -253,6 +270,16 @@ class Category(BaseCategory):
             self.product_count += 1
         else:
             raise TypeError
+
+    def middle_price(self) -> float | None:
+        mid_price = 0.0
+        try:
+            for product in self.__products:
+                mid_price += product.price
+            mid_price = mid_price / len(self.__products)
+        except ZeroDivisionError:
+            mid_price = 0.0
+        return round(mid_price, 2)
 
     @property
     def products(self) -> list[Product]:
@@ -296,6 +323,8 @@ class Order(BaseCategory):
         self.product = product
         self.name = product.name
         self.description = product.description
+        if quantity < 1 or product.quantity < 1:
+            raise MyException
         self.quantity = quantity
         self.price = product.price
 
