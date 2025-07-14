@@ -106,3 +106,8 @@ def other_class() -> Any:
             self.price = price
 
     return Other("Атака мурлоков", 18.18)
+
+
+@pytest.fixture(scope="session")
+def null_quantity() -> dict:
+    return {"name": "Пустой товар", "description": "Пусто", "price": 99999, "quantity": 0}
